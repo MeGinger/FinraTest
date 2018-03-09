@@ -3,16 +3,17 @@ package com.assignment.assignment.controller;
 
 import com.assignment.assignment.Exception.MetaDataNotFountException;
 import com.assignment.assignment.Service.FileService;
+import com.assignment.assignment.Service.MailService;
 import com.assignment.assignment.entity.MetaData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -20,7 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +31,14 @@ public class MainController {
 
     @Autowired
     private FileService fileService;
+
+    @Value("${sendTo}")
+    String sendTo;
+
+    @Value("${topic}")
+    String topic;
+    @Autowired
+    MailService mailService;
     @GetMapping("/metadatas")
     public List<MetaData> retrieveAllMetaData(){
         return fileService.loadAllMetaData();
@@ -48,7 +57,7 @@ public class MainController {
     }
 
 
-
+    //Retrive the most recent 1 hour meta-datas
     @GetMapping("/metadatas/recent")
     public List<MetaData>  retieveRecentMetaData(){
         List<MetaData> recentMetaData = fileService.recentMetaData();
@@ -56,24 +65,40 @@ public class MainController {
 
     }
 
+    @Scheduled(fixedDelay = 1000)
+    public void sendEmail() throws MessagingException {
+        String body = getBody();
+        mailService.send(sendTo, topic, body);
+    }
+
+    private String getBody() {
+        StringBuilder sb = new StringBuilder();
+        List<MetaData> fileInfoList = fileService.recentMetaData();
+        for (MetaData fileInfo : fileInfoList) {
+            sb.append(fileInfo.toString()+"\r\n");
+        }
+        return sb.toString();
+    }
+    //Download the file by its Id.
     @GetMapping(value="/metadatas/downloads/{id}")
-    public FileSystemResource downLoadFile(@PathVariable("id") Integer id, HttpServletResponse response, HttpServletRequest request) throws IOException {
+    public void downLoadFile(@PathVariable("id") Integer id, HttpServletResponse response, HttpServletRequest request) throws IOException {
         Optional<MetaData> metaData = fileService.loadMetaDataDetails(id);
 
         File file = fileService.getDownloadFile(id);
         String mediaType = URLConnection.guessContentTypeFromName(fileService.loadMetaDataDetails(id).get().getName());
+        if(mediaType==null){
+            mediaType = "application/octet-stream";
+        }
         System.out.println(fileService.loadMetaDataDetails(id).get().getName());
         InputStream inputStream = new FileInputStream(metaData.get().getPath());
-        response.addHeader("Content-disposition", "attachment;file=\""+ metaData.get().getName() );
+        response.addHeader("Content-disposition", "attachment; filename=\""+ metaData.get().getName()+"\"" );
         response.setContentType(mediaType);
         FileCopyUtils.copy(inputStream, response.getOutputStream());
 
-        return new FileSystemResource(file);
-//        String string = fileService.downloadFile(id, response, request);
-//        return string;
+
     }
 
-
+    //Retrieve all metadatas
     @PostMapping("/metadatas")
     public String singleFileUpload(@RequestBody MultipartFile file){
 

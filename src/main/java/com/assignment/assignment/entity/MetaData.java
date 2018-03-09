@@ -5,14 +5,10 @@ import java.util.Date;
 
 @Entity
 @Table(name = "META_DATA")
-//@NamedNativeQuery(name = "getrecent”,
-//        query= "SELECT * FROM META_DATA WHERE DATEDIFF(MINUTE,META_DATA.TIME ,SYSDATE)<60",
-//        resultClass=MetaData.class
-//
-//)
+
 @NamedNativeQuery(
         name    =   "MetaData.getrecent",
-        query   =   "SELECT * FROM META_DATA WHERE DATEDIFF(MINUTE,META_DATA.TIME ,SYSDATE)<1 ",
+        query   =   "SELECT * FROM META_DATA WHERE DATEDIFF(MINUTE,META_DATA.TIME ,SYSDATE)<60 ",
         resultClass=MetaData.class
 )
 public class MetaData {

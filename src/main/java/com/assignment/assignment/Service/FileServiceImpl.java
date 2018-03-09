@@ -24,7 +24,7 @@ import java.util.Optional;
 @Service
 public class FileServiceImpl implements FileService{
     private static String UPLOADED_FOLDER="src/main/resources/uploadFile/";
-    private File DOWNLOAD_FOLDER = new File("src/main/resources/downloadFile/");
+//    private File DOWNLOAD_FOLDER = new File("src/main/resources/downloadFile/");
     @Autowired
     private MetaDataDAO metaDataDAO;
 
@@ -65,9 +65,7 @@ public class FileServiceImpl implements FileService{
             String fileName = metaData.get().getName();
             String fileType= URLConnection.guessContentTypeFromName(fileName);
 
-            //String fileType = URLConnection.guessContentTypeFromStream(new FileInputStream(new File(fileName)));
-            //String fileType = Files.probeContentType(downloadFile.toPath());
-            //System.out.println(downloadFile.toPath().toString());
+
             System.out.println(fileType);
             if (downloadFile.exists()) {
                 InputStream inputStream = new FileInputStream(path);
