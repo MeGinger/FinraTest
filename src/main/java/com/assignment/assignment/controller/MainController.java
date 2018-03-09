@@ -59,8 +59,9 @@ public class MainController {
 
     //Retrive the most recent 1 hour meta-datas
     @GetMapping("/metadatas/recent")
-    public List<MetaData>  retieveRecentMetaData(){
+    public List<MetaData>  retieveRecentMetaData() throws MessagingException {
         List<MetaData> recentMetaData = fileService.recentMetaData();
+        mailService.send(sendTo,topic,getBody());
         return recentMetaData;
 
     }
@@ -74,8 +75,8 @@ public class MainController {
     private String getBody() {
         StringBuilder sb = new StringBuilder();
         List<MetaData> fileInfoList = fileService.recentMetaData();
-        for (MetaData fileInfo : fileInfoList) {
-            sb.append(fileInfo.toString()+"\r\n");
+        for (MetaData metaData : fileInfoList) {
+            sb.append(metaData.toString()+"\r\n");
         }
         return sb.toString();
     }
@@ -83,6 +84,9 @@ public class MainController {
     @GetMapping(value="/metadatas/downloads/{id}")
     public void downLoadFile(@PathVariable("id") Integer id, HttpServletResponse response, HttpServletRequest request) throws IOException {
         Optional<MetaData> metaData = fileService.loadMetaDataDetails(id);
+        if(!metaData.isPresent()){
+            throw new MetaDataNotFountException("id-"+id);
+        }
 
         File file = fileService.getDownloadFile(id);
         String mediaType = URLConnection.guessContentTypeFromName(fileService.loadMetaDataDetails(id).get().getName());

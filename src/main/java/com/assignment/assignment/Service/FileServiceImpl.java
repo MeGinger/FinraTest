@@ -43,7 +43,11 @@ public class FileServiceImpl implements FileService{
     @Override
     public File getDownloadFile(Integer id){
         Optional<MetaData> metaData = metaDataDAO.findById(id);
+
         File downloadFile = null;
+        if(metaData==null){
+
+        }
         if (metaData != null) {
             String path = metaData.get().getPath();
             downloadFile = new File(path);
