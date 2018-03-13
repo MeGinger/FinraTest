@@ -81,6 +81,11 @@ public class MainController {
         return sb.toString();
     }
     //Download the file by its Id.
+
+    @GetMapping(value = "/metadatas/name/{name}")
+    public Integer getId(@PathVariable("name") String name){
+        return fileService.getIDByname(name);
+    }
     @GetMapping(value="/metadatas/downloads/{id}")
     public void downLoadFile(@PathVariable("id") Integer id, HttpServletResponse response, HttpServletRequest request) throws IOException {
         Optional<MetaData> metaData = fileService.loadMetaDataDetails(id);

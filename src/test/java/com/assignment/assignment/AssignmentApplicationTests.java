@@ -28,10 +28,14 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.hasValue;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,9 +72,17 @@ public class AssignmentApplicationTests {
 	}
 
 	@Test
+	public void testUploadMethod() throws Exception{
+
+	}
+
+	@Test
 	public void testUploadFile() throws Exception {
 		MockMultipartFile file = new MockMultipartFile("file", "test".getBytes());
-		when(fileService.uploadFile(file)).thenReturn("Succeed to Upload File");
+		when(fileService.uploadFile(file)).thenReturn("Success");
+//		assertEquals(mockMvc.perform(post("/metadatas",file)),"Succeed to Upload File");
+		mockMvc.perform(post("/metadatas",file)).andExpect(content().string("Success"));
+				//jsonPath("$").value("Succeed to Upload File"));
 
 	}
 

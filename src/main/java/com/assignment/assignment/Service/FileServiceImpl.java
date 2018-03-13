@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,6 +40,13 @@ public class FileServiceImpl implements FileService{
         Optional<MetaData> metaDataOptional= metaDataDAO.findById(id);
         return metaDataOptional;
 
+    }
+    @Override
+
+    public Integer getIDByname(String fileName){
+        Integer id = metaDataDAO.findIdByName(fileName);
+//        System.out.println(metaData.getName());
+        return id;
     }
     @Override
     public File getDownloadFile(Integer id){
@@ -83,7 +91,8 @@ public class FileServiceImpl implements FileService{
     }
 
 
-
+    @Override
+    @Transactional
     public String uploadFile(MultipartFile file){
         if (file.isEmpty()) {
 

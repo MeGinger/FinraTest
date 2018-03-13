@@ -22,4 +22,5 @@ public interface FileService {
 
     public String downloadFile(Integer id, HttpServletResponse response, HttpServletRequest request) throws IOException;
     public List<MetaData> recentMetaData();
+    public Integer getIDByname(String fileName);
 }
